@@ -1,3 +1,9 @@
+body {
+  font: 14px "Century Gothic", Futura, sans-serif;
+  margin: 20px;
+}
+
+
 .App {
   text-align: center;
 }
@@ -43,4 +49,29 @@
 .btnMove{
   font-size: 16px;
   margin: 5px;
+}
+
+.Red {
+  color: transparent;
+  height: 80px;
+  border-radius: 50px;
+  background-color: #FF456C;
+  transform: translateY(0px);
+}
+
+.Blue {
+  color: transparent;
+  height: 80px;
+  border-radius: 50px;
+  background-color: #2CC5FF;
+  transform: translateY(0px);
+}
+
+button:hover {
+  font-size: 14pt;
+}
+
+
+.History{
+  list-style: none;
 }

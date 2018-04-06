@@ -119,6 +119,58 @@ class Board extends Component {
     }
   }
 
+  // To update the component to set the winner
+  componentDidUpdate(){
+    let {history} = this.state;
+    let {stepNumber} = this.state;
+    let winner = this.hasWinner(history[stepNumber].boardState);
+    if(this.state.winner !== winner){
+      this.setState({winner: winner})
+    }
+  }  
+
+  // to check which line wins
+  isLineWins(a,b,c,d) {
+    return ((a !== null) && (a === b) && (a === c) && (a === d));
+  } 
+
+  //checking for the winner
+  hasWinner(boardState) {
+    //checking if the winner is row
+    for (let column = 0; column < 7; column++){
+      for (let row = 0; row < 4; row++){
+        if (this.isLineWins(boardState[column][row], boardState[column][row+1], boardState[column][row+2], boardState[column][row+3])){
+          return boardState[column][row] + ' wins!'
+        }    
+      }
+    }
+    //checking if the winner is column
+    for (let row = 0; row < 6; row++){
+      for (let column = 0; column < 4; column++){
+        if (this.isLineWins(boardState[column][row], boardState[column+1][row], boardState[column+2][row], boardState[column+3][row])){
+          return boardState[column][row] + ' wins!'
+        }   
+      }
+    }
+    //checking winner for the right diagonal
+    for (let row = 0; row < 3; row++){
+      for (let column = 0; column < 4; column++){
+        if (this.isLineWins(boardState[column][row], boardState[column+1][row+1], boardState[column+2][row+2], boardState[column+3][row+3])){
+          return boardState[column][row] + ' wins!'
+        }
+      }       
+    }
+    //checking winner for the left diagonal
+    for (let row = 0; row < 4; row++){
+      for (let column = 3; column < 6; column++){
+        if (this.isLineWins(boardState[column][row], boardState[column-1][row+1], boardState[column-2][row+2], boardState[column-3][row+3])){
+          return boardState[column][row] + ' wins!'
+        }
+      }
+    }             
+
+    return "";
+  }
 
   render() {
     const {stepNumber} = this.state;
@@ -131,8 +183,7 @@ class Board extends Component {
         handleClick={() => this.handleClick(i)}>
       </ColumnHeight>
     )
-
-     {/*Tracking the move index*/}
+  {/*Tracking the move index*/}
     const moves = history.map((step, move) => {
       const desc = move ?
         'Go to move #' + move :
@@ -143,16 +194,21 @@ class Board extends Component {
         </li>
       );
     });
- 
+
     return (
     <div>
       <B.Button bsStyle="primary" bsSize="large" onClick={()=>this.reset()} className="btnMove">Reset</B.Button>{/*Button to reset the game to initial state*/}
       <div className="Board">
         {columns}{/* Drawing the columns*/}
-      </div> 
+      </div>
       <p>{moves}</p>{/*Displaying the move index in the button*/}
+      <div>
+      <h1>{this.state.winner}</h1>{/*Displaying the winner*/}
+      </div>
     </div>  
     );
+
+
   }
 }
 
@@ -166,6 +222,6 @@ class App extends Component {
       </div>
     );
   }
-}
+}  
 
 export default App;

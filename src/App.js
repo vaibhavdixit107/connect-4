@@ -21,7 +21,11 @@ function ColumnHeight(props){
     </div>
 }
 
-// Setting the initial State 
+//Setting the initial State 
+//History: Will keep a track of all board states so far. 
+//ColumnHeight: This array will keep track of how many discs are present in the particular so far. 
+//ColumnHeight[i] represents the number of discs in column i on board. 
+//The index will help us to keep track the location where the next disc should go in case a move in
 const initialState = {
   history:[
         {
@@ -39,7 +43,7 @@ const initialState = {
 class Board extends Component {
   constructor() {
     super();
-    this.state = JSON.parse(JSON.stringify(initialState));// Make a copy of the initial state
+    this.state = JSON.parse(JSON.stringify(initialState));// Making a copy of initial state for mutation of state.
   }
 
   //To handle the click to make the move in the grid
@@ -47,12 +51,12 @@ class Board extends Component {
     this.makeMove(i)
   }
 
-  //To reset the state of the game to initial state
+  //This function is used when a winner is detected and we want to restart the game again.
   reset(){
     this.setState(initialState);  
   }
 
-  //To make the move in the board
+  //This function handles all moves in the game.
   makeMove(columnId){
     let {columnHeight} = this.state;
     let {history} = this.state;
@@ -60,11 +64,12 @@ class Board extends Component {
     let {stepNumber} = this.state;
     let {isNextRed} = this.state;
 
-    //if there is a winner 
+    //In case a winner is detected we don't want enable any further moves in the game 
     if(winner !== ""){
       return;
     }
 
+    //Making the copy of the current board for mutation
     const boardCopy = history[stepNumber].boardState.map(function(arr) {
       return arr.slice();
     });
@@ -72,11 +77,16 @@ class Board extends Component {
     //To start filling the box from bottom
     let newColumnHeight = boardCopy[columnId].reverse();
     
-    //Slice the history to the step clicked
+    /*this condition will be true when we are in a historical state and try to make a move on the board. 
+    Slicing the history will prune the history till the step we are on so that it creates historical timeline again from the step. 
+    For example,
+    If we have played 6 steps till now and we go back to 3 step and again make a move on board from that state, 
+    this will prune the history array to step three and then we will this move as step 4 in the history array.*/
     if(history.length > stepNumber+1 ){
       history = history.slice(0,stepNumber+1);
     } 
-
+    
+    //this condition will be false only if there is no more space in particular column for disc(Invalid move)
     if(columnHeight[columnId] < 6){  
       boardCopy[columnId][columnHeight[columnId]] = isNextRed ? 'Red':'Blue';
       newColumnHeight.reverse();

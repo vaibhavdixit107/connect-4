@@ -110,7 +110,10 @@ class Board extends Component {
       let board = this.state.history[index].boardState;
       let columnHeightArray = [];// array for the current height of the column
       for(let i=0;i<board.length;i++){
-        let currentColumnHeight = board[i].findIndex(f => f === 0);
+        //making copy of current column
+        let currentBoard = board[i].slice();
+
+        let currentColumnHeight = currentBoard.reverse().findIndex(f => f === null);
         if(currentColumnHeight <= 0){
           columnHeightArray.push(0);
         }else{
@@ -193,7 +196,7 @@ class Board extends Component {
         handleClick={() => this.handleClick(i)}>
       </ColumnHeight>
     )
-  {/*Tracking the move index*/}
+  //Tracking the move index
     const moves = history.map((step, move) => {
       const desc = move ?
         'Go to move #' + move :

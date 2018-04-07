@@ -112,7 +112,9 @@ class Board extends Component {
       for(let i=0;i<board.length;i++){
         //making copy of current column
         let currentBoard = board[i].slice();
-
+        //Using 0 instead of null that was causing the bug changing it to null
+        //and reverse the column height again to find the exact height of the column
+        //which was reversed initially to make the move. This fixes the bug.
         let currentColumnHeight = currentBoard.reverse().findIndex(f => f === null);
         if(currentColumnHeight <= 0){
           columnHeightArray.push(0);

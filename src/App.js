@@ -26,7 +26,8 @@ function ColumnHeight(props){
 //ColumnHeight: This array will keep track of how many discs are present in the particular so far. 
 //ColumnHeight[i] represents the number of discs in column i on board. 
 //The index will help us to keep track the location where the next disc should go in case a move in
-const initialState = {
+//Fixing bug with initial state. const would not let us mutate the state on reset.
+let initialState = {
   history:[
         {
           boardState: new Array(7).fill(new Array(6).fill(null)),

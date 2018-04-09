@@ -54,7 +54,7 @@ class Board extends Component {
 
   //This function is used when a winner is detected and we want to restart the game again.
   reset(){
-    this.setState(initialState);  
+    this.setState(JSON.parse(JSON.stringify(initialState)));  // bug fix: using copy of initial state to reset
   }
 
   //This function handles all moves in the game.

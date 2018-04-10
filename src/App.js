@@ -5,7 +5,7 @@ import * as B from 'react-bootstrap';
 
 
 //Making the Squares in the grid
-function Square(props) {
+export function Square(props) {
   return (
     <div className="Square">
       <div className={props.value}>{props.value}</div>      
@@ -14,8 +14,8 @@ function Square(props) {
 }
 
 //Making the columns 
-function ColumnHeight(props){
-  return <div  onClick={() => props.handleClick()}>
+export function ColumnHeight(props){
+  return <div className="column" onClick={() => props.handleClick()}>
     {[...Array(props.holes.length)].map((x, j) => 
       <Square key={j} value={props.holes[j]}></Square>)}
     </div>
@@ -41,7 +41,7 @@ let initialState = {
 }
 
 //making the board for the game
-class Board extends Component {
+export class Board extends Component {
   constructor() {
     super();
     this.state = JSON.parse(JSON.stringify(initialState));// Making a copy of initial state for mutation of state.
@@ -84,6 +84,7 @@ class Board extends Component {
     If we have played 6 steps till now and we go back to 3 step and again make a move on board from that state, 
     this will prune the history array to step three and then we will this move as step 4 in the history array.*/
     if(history.length > stepNumber+1 ){
+      console.log(this.state.columnHeight);
       history = history.slice(0,stepNumber+1);
     } 
     
@@ -110,18 +111,21 @@ class Board extends Component {
       let {history} = this.state;
       let board = this.state.history[index].boardState;
       let columnHeightArray = [];// array for the current height of the column
-      for(let i=0;i<board.length;i++){
+
+       for(let i=0;i<board.length;i++){
         //making copy of current column
         let currentBoard = board[i].slice();
-        //Using 0 instead of null that was causing the bug changing it to null
-        //and reverse the column height again to find the exact height of the column
-        //which was reversed initially to make the move. This fixes the bug.
-        let currentColumnHeight = currentBoard.reverse().findIndex(f => f === null);
-        if(currentColumnHeight <= 0){
-          columnHeightArray.push(0);
-        }else{
-          columnHeightArray.push(currentColumnHeight);
-        }  
+        //initializing the current column height
+        let currentColumnHeight = 0;
+        //reversing the current board
+        let currentColumn = currentBoard.reverse();
+        //Looping through the current column instead of using find index
+        for(let j=0;j<currentColumn.length;j++){
+          if((currentColumn[j] === 'Blue') || (currentColumn[j] === 'Red')){
+            currentColumnHeight++;
+          }
+        }
+        columnHeightArray.push(currentColumnHeight);
       }
       
       return(
@@ -147,44 +151,45 @@ class Board extends Component {
 
   // to check which line wins
   isLineWins(a,b,c,d) {
-    return ((a !== null) && (a === b) && (a === c) && (a === d));
+        return ((a !== null) && (a === b) && (a === c) && (a === d));
   } 
 
   //checking for the winner
   hasWinner(boardState) {
-    //checking if the winner is row
-    for (let column = 0; column < 7; column++){
-      for (let row = 0; row < 4; row++){
-        if (this.isLineWins(boardState[column][row], boardState[column][row+1], boardState[column][row+2], boardState[column][row+3])){
-          return boardState[column][row] + ' wins!'
+    //checking if the winner is column
+    for (let row = 0; row < 7; row++){
+      for (let column = 0; column < 4; column++){
+        if (this.isLineWins(boardState[row][column], boardState[row][column+1], boardState[row][column+2], boardState[row][column+3])){
+          return boardState[row][column] + ' wins!'
         }    
       }
     }
-    //checking if the winner is column
-    for (let row = 0; row < 6; row++){
-      for (let column = 0; column < 4; column++){
-        if (this.isLineWins(boardState[column][row], boardState[column+1][row], boardState[column+2][row], boardState[column+3][row])){
-          return boardState[column][row] + ' wins!'
+    //checking if the winner is row
+    for (let column = 0; column < 6; column++){
+      for (let row = 0; row < 4; row++){
+        if (this.isLineWins(boardState[row][column], boardState[row+1][column], boardState[row+2][column], boardState[row+3][column])){
+          return boardState[row][column] + ' wins!'
         }   
       }
     }
     //checking winner for the right diagonal
-    for (let row = 0; row < 3; row++){
-      for (let column = 0; column < 4; column++){
-        if (this.isLineWins(boardState[column][row], boardState[column+1][row+1], boardState[column+2][row+2], boardState[column+3][row+3])){
-          return boardState[column][row] + ' wins!'
+    for (let column = 0; column < 3; column++){
+      for (let row = 0; row < 4; row++){
+        if (this.isLineWins(boardState[row][column], boardState[row+1][column+1], boardState[row+2][column+2], boardState[row+3][column+3])){
+          return boardState[row][column] + ' wins!'
         }
       }       
     }
     //checking winner for the left diagonal
-    for (let row = 0; row < 4; row++){
-      for (let column = 3; column < 6; column++){
-        if (this.isLineWins(boardState[column][row], boardState[column-1][row+1], boardState[column-2][row+2], boardState[column-3][row+3])){
-          return boardState[column][row] + ' wins!'
+    //fixing 1 off
+    for (let column = 0; column <= 4; column++){
+      for (let row = 3; row <= 6; row++){
+        if (this.isLineWins(boardState[row][column], boardState[row-1][column+1], boardState[row-2][column+2], boardState[row-3][column+3])){
+          return boardState[row][column] + ' wins!'
         }
       }
-    }             
-
+    }
+    
     return "";
   }
 
@@ -214,13 +219,16 @@ class Board extends Component {
     return (
     <div>
       <B.Button bsStyle="primary" bsSize="large" onClick={()=>this.reset()} className="btnMove">Reset</B.Button>{/*Button to reset the game to initial state*/}
+
+
       <div className="Board">
         {columns}{/* Drawing the columns*/}
       </div>
       <p>{moves}</p>{/*Displaying the move index in the button*/}
-      <div>
+      <div className="winner">
       <h1>{this.state.winner}</h1>{/*Displaying the winner*/}
       </div>
+      
     </div>  
     );
 
